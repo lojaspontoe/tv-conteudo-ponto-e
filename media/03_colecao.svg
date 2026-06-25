@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920" width="1080" height="1920">
+  <rect width="1080" height="1920" fill="#1b1b1b"/>
+  <rect x="40" y="40" width="1000" height="1840" fill="none" stroke="#ffffff" stroke-width="4"/>
+  <text x="540" y="760" font-family="Arial, sans-serif" font-size="70" fill="#aaaaaa" text-anchor="middle" letter-spacing="12">NOVA</text>
+  <text x="540" y="920" font-family="Arial, sans-serif" font-size="110" font-weight="bold" fill="#ffffff" text-anchor="middle">COLEÇÃO</text>
+  <text x="540" y="1040" font-family="Arial, sans-serif" font-size="70" fill="#aaaaaa" text-anchor="middle" letter-spacing="8">INVERNO 2025</text>
+  <line x1="300" y1="1110" x2="780" y2="1110" stroke="#ffffff" stroke-width="2"/>
+  <text x="540" y="1210" font-family="Arial, sans-serif" font-size="52" fill="#888888" text-anchor="middle">Exemplo — substitua por sua arte</text>
+</svg>
