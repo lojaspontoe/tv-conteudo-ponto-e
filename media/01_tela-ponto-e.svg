@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920" width="1080" height="1920">
-  <rect width="1080" height="1920" fill="#1a1a2e"/>
-  <rect x="40" y="40" width="1000" height="1840" fill="none" stroke="#e94560" stroke-width="4"/>
-  <text x="540" y="900" font-family="Arial, sans-serif" font-size="120" font-weight="bold" fill="#e94560" text-anchor="middle">PONTO E</text>
-  <text x="540" y="1040" font-family="Arial, sans-serif" font-size="60" fill="#ffffff" text-anchor="middle">Moda &amp; Estilo</text>
-  <line x1="240" y1="1100" x2="840" y2="1100" stroke="#e94560" stroke-width="3"/>
-  <text x="540" y="1180" font-family="Arial, sans-serif" font-size="48" fill="#aaaaaa" text-anchor="middle">Substitua por suas fotos e videos</text>
-</svg>
