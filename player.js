@@ -3,15 +3,17 @@
 let playlist = [];
 let indiceAtual = 0;
 let timerProximo = null;
+let camadaAtiva = 'a';
 
-const elImagem = document.getElementById("player-imagem");
-const elVideo  = document.getElementById("player-video");
-const elStatus = document.getElementById("status-texto");
+const elImagemA = document.getElementById("player-imagem-a");
+const elImagemB = document.getElementById("player-imagem-b");
+const elVideo   = document.getElementById("player-video");
+const elStatus  = document.getElementById("status-texto");
 
 async function buscarArquivosDoGitHub() {
   const url = `https://api.github.com/repos/${CONFIG.repositorioGitHub}/contents/${CONFIG.pastaMidia}`;
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 10000); // 10s timeout
+  const timeout = setTimeout(() => controller.abort(), 10000);
   try {
     const resposta = await fetch(url, {
       headers: { Accept: "application/vnd.github.v3+json" },
@@ -38,7 +40,7 @@ async function inicializar() {
     const novos = await buscarArquivosDoGitHub();
     if (novos.length === 0) {
       mostrarStatus("Nenhum arquivo na pasta media/.");
-      setTimeout(inicializar, 30000); // tenta de novo em 30s
+      setTimeout(inicializar, 30000);
       return;
     }
     if (playlist.length === 0) {
@@ -50,7 +52,7 @@ async function inicializar() {
   } catch (err) {
     console.error(err);
     mostrarStatus("Sem conexão. Tentando novamente...");
-    setTimeout(inicializar, 30000); // tenta de novo em 30s
+    setTimeout(inicializar, 30000);
     return;
   }
   setTimeout(inicializar, CONFIG.intervaloAtualizacaoMinutos * 60 * 1000);
@@ -63,27 +65,44 @@ function exibirAtual() {
 }
 
 function exibirImagem(item) {
+  const proxima = camadaAtiva === 'a' ? elImagemB : elImagemA;
+  const atual   = camadaAtiva === 'a' ? elImagemA : elImagemB;
+
   const img = new Image();
   img.onload = () => {
-    elVideo.pause(); elVideo.style.display = "none";
-    elImagem.style.display = "block"; elImagem.src = item.url;
+    // Para o vídeo se estiver tocando
+    elVideo.pause();
+    elVideo.classList.remove('ativa');
+
+    // Carrega na camada escondida e faz o crossfade
+    proxima.src = item.url;
+    proxima.classList.add('ativa');
+    atual.classList.remove('ativa');
+    camadaAtiva = camadaAtiva === 'a' ? 'b' : 'a';
+
     clearTimeout(timerProximo);
     timerProximo = setTimeout(avancar, CONFIG.duracaoFotoSegundos * 1000);
   };
-  img.onerror = () => avancar(); // pula se não conseguir carregar
+  img.onerror = () => avancar();
   img.src = item.url;
 }
 
 function exibirVideo(item) {
-  elImagem.style.display = "none"; elVideo.style.display = "block";
-  elVideo.src = item.url; elVideo.load();
-  elVideo.onended = () => avancar();
+  // Esconde as imagens, mostra o vídeo
+  elImagemA.classList.remove('ativa');
+  elImagemB.classList.remove('ativa');
+
+  elVideo.src = item.url;
+  elVideo.load();
+
   elVideo.oncanplaythrough = () => {
+    elVideo.classList.add('ativa');
     elVideo.play().catch(() => {
       clearTimeout(timerProximo);
       timerProximo = setTimeout(avancar, CONFIG.duracaoVideoSegundos * 1000);
     });
   };
+  elVideo.onended = () => avancar();
   elVideo.onerror = () => { clearTimeout(timerProximo); timerProximo = setTimeout(avancar, 3000); };
 }
 
@@ -93,8 +112,13 @@ function avancar() {
   exibirAtual();
 }
 
-function mostrarStatus(msg) { elStatus.textContent = msg; document.getElementById("status-overlay").style.display = "flex"; }
-function ocultarStatus()    { document.getElementById("status-overlay").style.display = "none"; }
+function mostrarStatus(msg) {
+  elStatus.textContent = msg;
+  document.getElementById("status-overlay").style.display = "flex";
+}
+function ocultarStatus() {
+  document.getElementById("status-overlay").style.display = "none";
+}
 
 function preCarregarProximo() {
   if (playlist.length < 2) return;
