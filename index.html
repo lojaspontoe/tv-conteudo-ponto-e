@@ -30,6 +30,25 @@
       text-align: center; padding: 2rem;
     }
     #overlay-bloqueio { position: fixed; inset: 0; z-index: 20; cursor: none; }
+
+    #btn-fullscreen {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 30;
+      background: rgba(255,255,255,0.15);
+      border: 2px solid rgba(255,255,255,0.4);
+      color: #fff;
+      font-size: 1.1rem;
+      font-family: sans-serif;
+      padding: 14px 24px;
+      border-radius: 12px;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+      transition: opacity 0.4s;
+    }
+    #btn-fullscreen:hover { background: rgba(255,255,255,0.25); }
+    #btn-fullscreen.oculto { opacity: 0; pointer-events: none; }
   </style>
 </head>
 <body>
@@ -41,6 +60,24 @@
     <p id="status-texto">Carregando...</p>
   </div>
   <div id="overlay-bloqueio"></div>
+
+  <button id="btn-fullscreen" onclick="entrarTelaCheia()">⛶ Tela cheia</button>
+
+  <script>
+    function entrarTelaCheia() {
+      document.documentElement.requestFullscreen().then(() => {
+        const btn = document.getElementById('btn-fullscreen');
+        btn.classList.add('oculto');
+      }).catch(() => {});
+    }
+    // Se sair da tela cheia, mostra o botão novamente
+    document.addEventListener('fullscreenchange', () => {
+      if (!document.fullscreenElement) {
+        document.getElementById('btn-fullscreen').classList.remove('oculto');
+      }
+    });
+  </script>
+
   <script src="config.js"></script>
   <script src="player.js"></script>
 </body>
