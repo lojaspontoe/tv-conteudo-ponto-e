@@ -68,8 +68,7 @@ function exibirImagem(item) {
   const proxima = camadaAtiva === 'a' ? elImagemB : elImagemA;
   const atual   = camadaAtiva === 'a' ? elImagemA : elImagemB;
 
-  // Carrega direto no elemento que vai exibir — só faz o swap quando estiver pronto
-  proxima.onload = () => {
+  function fazerSwap() {
     elVideo.pause();
     elVideo.classList.remove('ativa');
     proxima.classList.add('ativa');
@@ -77,9 +76,14 @@ function exibirImagem(item) {
     camadaAtiva = camadaAtiva === 'a' ? 'b' : 'a';
     clearTimeout(timerProximo);
     timerProximo = setTimeout(avancar, CONFIG.duracaoFotoSegundos * 1000);
-  };
+  }
+
+  proxima.onload  = fazerSwap;
   proxima.onerror = () => avancar();
   proxima.src = item.url;
+
+  // Se já estava em cache, onload não dispara — executa direto
+  if (proxima.complete && proxima.naturalWidth > 0) fazerSwap();
 }
 
 function exibirVideo(item) {
