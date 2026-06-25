@@ -63,10 +63,15 @@ function exibirAtual() {
 }
 
 function exibirImagem(item) {
-  elVideo.pause(); elVideo.style.display = "none";
-  elImagem.style.display = "block"; elImagem.src = item.url;
-  clearTimeout(timerProximo);
-  timerProximo = setTimeout(avancar, CONFIG.duracaoFotoSegundos * 1000);
+  const img = new Image();
+  img.onload = () => {
+    elVideo.pause(); elVideo.style.display = "none";
+    elImagem.style.display = "block"; elImagem.src = item.url;
+    clearTimeout(timerProximo);
+    timerProximo = setTimeout(avancar, CONFIG.duracaoFotoSegundos * 1000);
+  };
+  img.onerror = () => avancar(); // pula se não conseguir carregar
+  img.src = item.url;
 }
 
 function exibirVideo(item) {
