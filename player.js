@@ -68,23 +68,18 @@ function exibirImagem(item) {
   const proxima = camadaAtiva === 'a' ? elImagemB : elImagemA;
   const atual   = camadaAtiva === 'a' ? elImagemA : elImagemB;
 
-  const img = new Image();
-  img.onload = () => {
-    // Para o vídeo se estiver tocando
+  // Carrega direto no elemento que vai exibir — só faz o swap quando estiver pronto
+  proxima.onload = () => {
     elVideo.pause();
     elVideo.classList.remove('ativa');
-
-    // Carrega na camada escondida e faz o crossfade
-    proxima.src = item.url;
     proxima.classList.add('ativa');
     atual.classList.remove('ativa');
     camadaAtiva = camadaAtiva === 'a' ? 'b' : 'a';
-
     clearTimeout(timerProximo);
     timerProximo = setTimeout(avancar, CONFIG.duracaoFotoSegundos * 1000);
   };
-  img.onerror = () => avancar();
-  img.src = item.url;
+  proxima.onerror = () => avancar();
+  proxima.src = item.url;
 }
 
 function exibirVideo(item) {
