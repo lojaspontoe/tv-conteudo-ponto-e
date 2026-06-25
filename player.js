@@ -10,24 +10,37 @@ const elStatus = document.getElementById("status-texto");
 
 async function buscarArquivosDoGitHub() {
   const url = `https://api.github.com/repos/${CONFIG.repositorioGitHub}/contents/${CONFIG.pastaMidia}`;
-  const resposta = await fetch(url, { headers: { Accept: "application/vnd.github.v3+json" } });
-  if (!resposta.ok) throw new Error(`GitHub API ${resposta.status}`);
-  const arquivos = await resposta.json();
-  return arquivos
-    .filter(f => f.type === "file" && /\.(jpe?g|png|gif|webp|svg|mp4|mov|webm)$/i.test(f.name))
-    .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }))
-    .map(f => ({
-      url: f.download_url,
-      tipo: /\.(jpe?g|png|gif|webp|svg)$/i.test(f.name) ? "imagem" : "video",
-      nome: f.name,
-    }));
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000); // 10s timeout
+  try {
+    const resposta = await fetch(url, {
+      headers: { Accept: "application/vnd.github.v3+json" },
+      signal: controller.signal,
+    });
+    if (!resposta.ok) throw new Error(`GitHub API ${resposta.status}`);
+    const arquivos = await resposta.json();
+    return arquivos
+      .filter(f => f.type === "file" && /\.(jpe?g|png|gif|webp|svg|mp4|mov|webm)$/i.test(f.name))
+      .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }))
+      .map(f => ({
+        url: f.download_url,
+        tipo: /\.(jpe?g|png|gif|webp|svg)$/i.test(f.name) ? "imagem" : "video",
+        nome: f.name,
+      }));
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 async function inicializar() {
-  mostrarStatus("Carregando...");
+  if (playlist.length === 0) mostrarStatus("Carregando...");
   try {
     const novos = await buscarArquivosDoGitHub();
-    if (novos.length === 0) { mostrarStatus("Nenhum arquivo na pasta media/."); return; }
+    if (novos.length === 0) {
+      mostrarStatus("Nenhum arquivo na pasta media/.");
+      setTimeout(inicializar, 30000); // tenta de novo em 30s
+      return;
+    }
     if (playlist.length === 0) {
       playlist = novos; indiceAtual = 0; ocultarStatus(); exibirAtual();
     } else {
@@ -36,7 +49,9 @@ async function inicializar() {
     }
   } catch (err) {
     console.error(err);
-    mostrarStatus("Erro ao carregar. Tentando novamente em breve...");
+    mostrarStatus("Sem conexão. Tentando novamente...");
+    setTimeout(inicializar, 30000); // tenta de novo em 30s
+    return;
   }
   setTimeout(inicializar, CONFIG.intervaloAtualizacaoMinutos * 60 * 1000);
 }
