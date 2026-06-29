@@ -34,7 +34,7 @@
       transform: translate(-50%, -50%) rotate(90deg);
     }
     #status-overlay {
-      position: fixed; inset: 0; background: #000;
+      position: absolute; inset: 0; background: #000;
       display: flex; align-items: center; justify-content: center; z-index: 10;
     }
     #status-texto {
@@ -44,7 +44,7 @@
     #overlay-bloqueio { position: fixed; inset: 0; z-index: 20; cursor: none; }
 
     #btn-fullscreen {
-      position: fixed;
+      position: absolute;
       bottom: 24px;
       right: 24px;
       z-index: 30;
@@ -68,13 +68,12 @@
     <img id="player-imagem-a" class="camada" alt="" />
     <img id="player-imagem-b" class="camada" alt="" />
     <video id="player-video" class="camada" muted playsinline preload="auto"></video>
-  </div>
-  <div id="status-overlay">
-    <p id="status-texto">Carregando...</p>
+    <div id="status-overlay">
+      <p id="status-texto">Carregando...</p>
+    </div>
+    <button id="btn-fullscreen" onclick="entrarTelaCheia()">⛶ Tela cheia</button>
   </div>
   <div id="overlay-bloqueio"></div>
-
-  <button id="btn-fullscreen" onclick="entrarTelaCheia()">⛶ Tela cheia</button>
 
   <script>
     function entrarTelaCheia() {
