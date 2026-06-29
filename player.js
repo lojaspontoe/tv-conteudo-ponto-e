@@ -126,4 +126,8 @@ function preCarregarProximo() {
 }
 setInterval(preCarregarProximo, 3000);
 
+// Recarrega a pagina periodicamente para garantir que nunca rode codigo
+// desatualizado (TVs com navegador embutido tendem a cachear agressivamente)
+setTimeout(() => location.reload(), 60 * 60 * 1000); // 1 hora
+
 inicializar();
