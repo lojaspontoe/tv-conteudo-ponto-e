@@ -23,7 +23,7 @@ function ConverterVideosVerticais {
                     if ($altura -gt $largura) {
                         Write-Host "Convertendo para horizontal: $arquivo"
                         $temp = "$caminho.tmp.mp4"
-                        & $ffmpeg -y -i $caminho -vf "transpose=1" -c:a copy $temp 2>$null
+                        & $ffmpeg -y -i $caminho -vf "transpose=2" -c:a copy $temp 2>$null
                         if (Test-Path $temp) {
                             Move-Item -Force $temp $caminho
                         }
