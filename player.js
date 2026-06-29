@@ -94,15 +94,6 @@ function exibirVideo(item) {
   elVideo.src = item.url;
   elVideo.load();
 
-  elVideo.onloadedmetadata = () => {
-    // Vídeo gravado na horizontal — gira 90° para preencher a tela vertical
-    if (elVideo.videoWidth > elVideo.videoHeight) {
-      elVideo.classList.add('paisagem');
-    } else {
-      elVideo.classList.remove('paisagem');
-    }
-  };
-
   elVideo.oncanplaythrough = () => {
     elVideo.classList.add('ativa');
     elVideo.play().catch(() => {
