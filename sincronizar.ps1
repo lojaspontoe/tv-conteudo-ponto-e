@@ -1,7 +1,6 @@
 # Sincronizador automatico — verifica mudancas a cada 30 segundos
-# Converte automaticamente videos verticais para horizontal antes de enviar
-# (TVs com navegador embutido ignoram rotacao CSS para video, entao o
-#  arquivo precisa chegar ja no formato horizontal)
+# Adiciona marcacao de rotacao aos videos verticais (sem recodificar pixels,
+# sem mudar dimensoes) para que o navegador da TV exiba na orientacao correta
 
 $pastaRepo = $PSScriptRoot
 $ffmpeg  = "C:\Users\CLIENTE\AppData\Local\Microsoft\WinGet\Packages\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe\ffmpeg-8.1.2-full_build\bin\ffmpeg.exe"
@@ -20,10 +19,11 @@ function ConverterVideosVerticais {
                     $partes = $dim -split ','
                     $largura = [int]$partes[0]
                     $altura  = [int]$partes[1]
-                    if ($altura -gt $largura) {
-                        Write-Host "Convertendo para horizontal: $arquivo"
+                    $jaTemRotacao = & $ffprobe -v error -select_streams v:0 -show_entries side_data=rotation -of csv=p=0 $caminho 2>$null
+                    if ($altura -gt $largura -and -not $jaTemRotacao) {
+                        Write-Host "Adicionando marcacao de rotacao: $arquivo"
                         $temp = "$caminho.tmp.mp4"
-                        & $ffmpeg -y -i $caminho -vf "transpose=2" -c:a copy $temp 2>$null
+                        & $ffmpeg -y -display_rotation:0 -90 -i $caminho -c copy $temp 2>$null
                         if (Test-Path $temp) {
                             Move-Item -Force $temp $caminho
                         }
