@@ -72,17 +72,20 @@ function exibirImagem(item) {
     elVideo.pause();
     elVideo.classList.remove('ativa');
 
-    // Garante que proxima está na posição inicial antes de animar
     proxima.classList.remove('ativa', 'saindo');
-    void proxima.offsetWidth; // reflow: congela o estado inicial
+    camadaAtiva = camadaAtiva === 'a' ? 'b' : 'a';
+
+    // Timer do loop fora do rAF — garante que nunca para mesmo em TVs
+    clearTimeout(timerProximo);
+    timerProximo = setTimeout(avancar, CONFIG.duracaoFotoSegundos * 1000);
+
+    // Animação visual via rAF (secundário — só afeta aparência)
+    void proxima.offsetWidth;
     requestAnimationFrame(() => {
-      proxima.classList.add('ativa');        // entra da direita
+      proxima.classList.add('ativa');
       atual.classList.remove('ativa');
-      atual.classList.add('saindo');         // sai pela esquerda
-      camadaAtiva = camadaAtiva === 'a' ? 'b' : 'a';
+      atual.classList.add('saindo');
       setTimeout(() => atual.classList.remove('saindo'), 600);
-      clearTimeout(timerProximo);
-      timerProximo = setTimeout(avancar, CONFIG.duracaoFotoSegundos * 1000);
     });
   }
 
