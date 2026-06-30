@@ -71,6 +71,7 @@ function exibirImagem(item) {
   function fazerSlide() {
     elVideo.pause();
     elVideo.classList.remove('ativa');
+    void proxima.offsetWidth; // força reflow para a transição animar
     proxima.classList.add('ativa');
     atual.classList.remove('ativa');
     atual.classList.add('saindo');
