@@ -68,22 +68,24 @@ function exibirImagem(item) {
   const proxima = camadaAtiva === 'a' ? elImagemB : elImagemA;
   const atual   = camadaAtiva === 'a' ? elImagemA : elImagemB;
 
-  function fazerSwap() {
+  function fazerSlide() {
     elVideo.pause();
-    elVideo.classList.remove('ativa', 'paisagem');
+    elVideo.classList.remove('ativa');
     proxima.classList.add('ativa');
     atual.classList.remove('ativa');
+    atual.classList.add('saindo');
     camadaAtiva = camadaAtiva === 'a' ? 'b' : 'a';
+    setTimeout(() => atual.classList.remove('saindo'), 650);
     clearTimeout(timerProximo);
     timerProximo = setTimeout(avancar, CONFIG.duracaoFotoSegundos * 1000);
   }
 
-  proxima.onload  = fazerSwap;
+  proxima.classList.remove('ativa', 'saindo');
+  proxima.onload  = fazerSlide;
   proxima.onerror = () => avancar();
   proxima.src = item.url;
 
-  // Se já estava em cache, onload não dispara — executa direto
-  if (proxima.complete && proxima.naturalWidth > 0) fazerSwap();
+  if (proxima.complete && proxima.naturalWidth > 0) fazerSlide();
 }
 
 function exibirVideo(item) {
