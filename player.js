@@ -71,19 +71,23 @@ function exibirImagem(item) {
   function fazerSlide() {
     elVideo.pause();
     elVideo.classList.remove('ativa');
-    void proxima.offsetWidth; // força reflow para a transição animar
-    proxima.classList.add('ativa');
-    atual.classList.remove('ativa');
-    atual.classList.add('saindo');
-    camadaAtiva = camadaAtiva === 'a' ? 'b' : 'a';
-    setTimeout(() => atual.classList.remove('saindo'), 650);
-    clearTimeout(timerProximo);
-    timerProximo = setTimeout(avancar, CONFIG.duracaoFotoSegundos * 1000);
+
+    // Garante que proxima está na posição inicial antes de animar
+    proxima.classList.remove('ativa', 'saindo');
+    void proxima.offsetWidth; // reflow: congela o estado inicial
+    requestAnimationFrame(() => {
+      proxima.classList.add('ativa');        // entra da direita
+      atual.classList.remove('ativa');
+      atual.classList.add('saindo');         // sai pela esquerda
+      camadaAtiva = camadaAtiva === 'a' ? 'b' : 'a';
+      setTimeout(() => atual.classList.remove('saindo'), 600);
+      clearTimeout(timerProximo);
+      timerProximo = setTimeout(avancar, CONFIG.duracaoFotoSegundos * 1000);
+    });
   }
 
-  proxima.classList.remove('ativa', 'saindo');
   proxima.onload  = fazerSlide;
-  proxima.onerror = () => avancar();
+  proxima.onerror = () => { clearTimeout(timerProximo); timerProximo = setTimeout(avancar, 1000); };
   proxima.src = item.url;
 
   if (proxima.complete && proxima.naturalWidth > 0) fazerSlide();
