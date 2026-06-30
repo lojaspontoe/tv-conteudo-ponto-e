@@ -22,7 +22,7 @@ async function buscarArquivosDoGitHub() {
     if (!resposta.ok) throw new Error(`GitHub API ${resposta.status}`);
     const arquivos = await resposta.json();
     return arquivos
-      .filter(f => f.type === "file" && /\.(jpe?g|png|gif|webp|svg|mp4|mov|webm)$/i.test(f.name))
+      .filter(f => f.type === "file" && /\.(jpe?g|png|gif|webp|svg)$/i.test(f.name))
       .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }))
       .map(f => ({
         url: f.download_url,
