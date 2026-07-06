@@ -84,17 +84,23 @@
 
   <script>
     function entrarTelaCheia() {
-      document.documentElement.requestFullscreen().then(() => {
-        const btn = document.getElementById('btn-fullscreen');
-        btn.classList.add('oculto');
+      const fn = document.documentElement.requestFullscreen
+        || document.documentElement.webkitRequestFullscreen
+        || document.documentElement.mozRequestFullScreen;
+      if (!fn) return;
+      fn.call(document.documentElement).then(() => {
+        document.getElementById('btn-fullscreen').classList.add('oculto');
       }).catch(() => {});
     }
-    // Se sair da tela cheia, mostra o botão novamente
+
     document.addEventListener('fullscreenchange', () => {
       if (!document.fullscreenElement) {
         document.getElementById('btn-fullscreen').classList.remove('oculto');
       }
     });
+
+    // Tenta entrar em tela cheia automaticamente ao carregar (funciona em TVs)
+    window.addEventListener('load', () => entrarTelaCheia());
   </script>
 
   <script src="config.js"></script>
