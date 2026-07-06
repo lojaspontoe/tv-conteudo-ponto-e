@@ -136,6 +136,36 @@ function preCarregarProximo() {
 }
 setInterval(preCarregarProximo, 3000);
 
+// --- Manter tela ativa (impede Ambient Mode / hibernação da Samsung TV) ---
+
+let _wakeLock = null;
+
+async function _ativarWakeLock() {
+  if (!('wakeLock' in navigator)) return;
+  try {
+    _wakeLock = await navigator.wakeLock.request('screen');
+    _wakeLock.addEventListener('release', () => {
+      _wakeLock = null;
+      // Re-adquire automaticamente se a tela acordar
+      setTimeout(_ativarWakeLock, 2000);
+    });
+  } catch (_) {}
+}
+
+// Eventos sintéticos a cada 25s — fallback para TVs que não suportam Wake Lock
+setInterval(() => {
+  ['pointermove', 'mousemove'].forEach(tipo =>
+    document.dispatchEvent(new Event(tipo, { bubbles: true }))
+  );
+}, 25000);
+
+// Re-adquire Wake Lock quando a página voltar ao foco (TV saiu do Ambient Mode)
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') _ativarWakeLock();
+});
+
+_ativarWakeLock();
+
 // Recarrega a pagina periodicamente para garantir que nunca rode codigo
 // desatualizado (TVs com navegador embutido tendem a cachear agressivamente)
 setTimeout(() => location.reload(), 60 * 60 * 1000); // 1 hora
