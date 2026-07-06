@@ -136,35 +136,59 @@ function preCarregarProximo() {
 }
 setInterval(preCarregarProximo, 3000);
 
-// --- Manter tela ativa (impede Ambient Mode / hibernação da Samsung TV) ---
+// --- Manter tela ativa (impede sleep / Ambient Mode em qualquer TV) ---
 
-let _wakeLock = null;
-
-async function _ativarWakeLock() {
-  if (!('wakeLock' in navigator)) return;
+function _iniciarKeepAlive() {
+  // Canvas animado → MediaStream → <video> oculto
+  // O sistema operacional vê "vídeo tocando" e não dorme
   try {
-    _wakeLock = await navigator.wakeLock.request('screen');
-    _wakeLock.addEventListener('release', () => {
-      _wakeLock = null;
-      // Re-adquire automaticamente se a tela acordar
-      setTimeout(_ativarWakeLock, 2000);
-    });
+    const cv = document.createElement('canvas');
+    cv.width = 2; cv.height = 2;
+    const cx = cv.getContext('2d');
+    let t = 0;
+    (function tick() {
+      cx.fillStyle = (++t % 2) ? '#000000' : '#010101';
+      cx.fillRect(0, 0, 2, 2);
+      requestAnimationFrame(tick);
+    })();
+    const kv = document.createElement('video');
+    kv.srcObject = cv.captureStream(1);
+    kv.muted = true;
+    kv.playsInline = true;
+    kv.style.cssText = 'position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;z-index:-999';
+    document.body.appendChild(kv);
+    kv.play().catch(() => {});
   } catch (_) {}
+
+  // AudioContext silencioso — ativa o mixer de áudio do sistema
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (AC) {
+      const ac = new AC();
+      const osc = ac.createOscillator();
+      const g = ac.createGain();
+      g.gain.value = 0.0001; // inaudível mas "tocando"
+      osc.connect(g);
+      g.connect(ac.destination);
+      osc.start();
+    }
+  } catch (_) {}
+
+  // Wake Lock API — padrão web quando suportado
+  (async () => {
+    if (!('wakeLock' in navigator)) return;
+    try {
+      const wl = await navigator.wakeLock.request('screen');
+      wl.addEventListener('release', () => setTimeout(_iniciarKeepAlive, 3000));
+    } catch (_) {}
+  })();
 }
 
-// Eventos sintéticos a cada 25s — fallback para TVs que não suportam Wake Lock
-setInterval(() => {
-  ['pointermove', 'mousemove'].forEach(tipo =>
-    document.dispatchEvent(new Event(tipo, { bubbles: true }))
-  );
-}, 25000);
-
-// Re-adquire Wake Lock quando a página voltar ao foco (TV saiu do Ambient Mode)
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible') _ativarWakeLock();
+  if (document.visibilityState === 'visible') _iniciarKeepAlive();
 });
 
-_ativarWakeLock();
+_iniciarKeepAlive();
 
 // Recarrega a pagina periodicamente para garantir que nunca rode codigo
 // desatualizado (TVs com navegador embutido tendem a cachear agressivamente)
