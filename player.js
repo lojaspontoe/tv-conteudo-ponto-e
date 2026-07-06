@@ -190,8 +190,7 @@ document.addEventListener('visibilitychange', () => {
 
 _iniciarKeepAlive();
 
-// Recarrega a pagina periodicamente para garantir que nunca rode codigo
-// desatualizado (TVs com navegador embutido tendem a cachear agressivamente)
-setTimeout(() => location.reload(), 60 * 60 * 1000); // 1 hora
+// Recarrega a cada 15 min — reseta o timer de inatividade da TV antes dos 20 min
+setInterval(() => location.reload(), 15 * 60 * 1000);
 
 inicializar();
